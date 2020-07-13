@@ -9,7 +9,7 @@ const Promotions = require('../models/promotions');
 promotionRouter.use(bodyParser.json());
 
 promotionRouter.route('/')
-.get((req,res,next) => {
+.get(authenticate.verifyOrdinaryUser,(req,res,next) => {
     Promotions.find({})
     .then((promotions) => {
         res.statusCode = 200;
@@ -19,7 +19,7 @@ promotionRouter.route('/')
     .catch((err) => next(err));
 })
 
-.post(authenticate.verifyUser, (req,res,next) => {
+.post(authenticate.verifyOrdinaryUser,authenticate.verifyAdmin, (req,res,next) => {
     Promotions.create(req.body)
     .then((promotion) => {
         console.log("Promotion created successfully",promotion);
@@ -30,12 +30,12 @@ promotionRouter.route('/')
     .catch((err) => next(err));
 })
 
-.put(authenticate.verifyUser, (req,res,next) => {
+.put(authenticate.verifyOrdinaryUser,authenticate.verifyAdmin, (req,res,next) => {
     res.statusCode = 403;
     res.end('PUT operation not supported ')
 })
 
-.delete(authenticate.verifyUser, (req,res,next) => {
+.delete(authenticate.verifyOrdinaryUser,authenticate.verifyAdmin, (req,res,next) => {
     Promotions.remove({})
     .then((resp) => {
         res.statusCode = 200;
@@ -46,7 +46,7 @@ promotionRouter.route('/')
 });
 
 promotionRouter.route('/:promoid')
-.get( (req,res,next) => {
+.get(authenticate.verifyOrdinaryUser, (req,res,next) => {
     Promotions.findById(req.params.promoid)
     .then((promotion) => {
         res.statusCode = 200;
@@ -56,12 +56,12 @@ promotionRouter.route('/:promoid')
     .catch((err) => next(err));
 })
 
-.post(authenticate.verifyUser, (req,res,next) => {
+.post(authenticate.verifyOrdinaryUser,authenticate.verifyAdmin, (req,res,next) => {
     res.statusCode = 403;
     res.end('POST operation not supported');
 })
 
-.put(authenticate.verifyUser, (req,res,next) => {
+.put(authenticate.verifyOrdinaryUser,authenticate.verifyAdmin, (req,res,next) => {
     Promotions.findByIdAndUpdate(req.params.promoid, {
         $set : req.body
     },{ new : true})
@@ -73,7 +73,7 @@ promotionRouter.route('/:promoid')
     .catch((err) => next(err));
 })
 
-.delete(authenticate.verifyUser, (req,res,next) => {
+.delete(authenticate.verifyOrdinaryUser,authenticate.verifyAdmin, (req,res,next) => {
     Promotions.findByIdAndRemove(req.params.promoid)
     .then((resp) => {
         res.statusCode = 200;

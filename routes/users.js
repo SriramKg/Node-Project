@@ -7,9 +7,17 @@ var router = express.Router();
 
 router.use(BodyParser.json());
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+router.get('/',authenticate.verifyOrdinaryUser,authenticate.verifyAdmin, function(req, res, next) {
+  User.find({})
+  .then((users) => {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.json(users);
+  }, (err) => next(err))
+  .catch((err) => next(err));
+  //res.render('index', { title: 'Express' });
 });
+
 
 router.post('/signup', (req, res, next) => {
   User.register(new User({username : req.body.username}), req.body.password, (err,user) => {
@@ -46,6 +54,17 @@ router.post('/login', passport.authenticate('local'), (req,res) => {
   res.setHeader('Content-Type', 'application/json');
   res.json({success : true, token : token, status : 'You are logged in successfully!'});
 });  
+
+/*router.get('/users',authenticate.verifyAdmin, (req,res) => {
+  User.find({})
+  .then((users) => {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.json(users);
+  }, (err) => next(err))
+  .catch((err) => next(err));
+
+})*/
   /*if(!req.session.user) {
 
     var authheader = req.headers.authorization;
